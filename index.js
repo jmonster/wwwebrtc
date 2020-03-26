@@ -9,4 +9,4 @@ io.on('connection', socket => {
   })
 })
 
-io.listen(3000)
+io.listen(process.env.PORT || 3000)
