@@ -10,20 +10,16 @@ io.on('connection', socket => {
     io.to(remotePeerId).emit('signal', socket.id, signal)
   })
 
-  // after a browser connects, they may send a 'join' message
-  // 'channelSecret' represents a particular/unique multiparty call
-  // shared amongst everyone on that call
-  socket.on('join', ({channelSecret}) => {
+  // After a browser connects, they may send a 'join' message.
+  // 'channelSecret' represents a particular/unique multiparty call.
+  socket.on('join', async ({channelSecret}) => {
+    // all sockets in the 'call' namespace and in the 'channelSecret' room
+    const ids = await io.in(channelSecret).allSockets()
+    // TODO omit current socket from collection?
+    socket.emit('peersAvailable', ids)
     socket.join(channelSecret)
   })
-
-  // 'aloha' is an arbitrarily named event for when a client
-  // is announcing their willingness to connect to other members
-  // of the call
-  socket.on('aloha', ({channelSecret}) => {
-    socket.to(channelSecret).emit('invite', socket.id)
-  })
-
+  
 })
 
 io.listen(process.env.PORT || 3000)
